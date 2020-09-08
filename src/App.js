@@ -1,13 +1,12 @@
 import React from 'react'
 import { useQuery } from 'react-query'
+import { ReactQueryDevtools } from 'react-query-devtools'
+
 import axios from 'axios'
 
-export default function App() {
+function Pokemon() {
   const queryInfo = useQuery('pokemon', async () => {
     await new Promise((resolve) => setTimeout(resolve, 1000))
-    // if (true) {
-    //   throw new Error('Test error!')
-    // }
     return axios
       .get('https://pokeapi.co/api/v2/pokemon')
       .then((res) => res.data.results)
@@ -22,6 +21,15 @@ export default function App() {
       {queryInfo.data?.map((result) => {
         return <div key={result.name}>{result.name}</div>
       })}
+    </div>
+  )
+}
+
+export default function App() {
+  return (
+    <div>
+      <Pokemon />
+      <ReactQueryDevtools />
     </div>
   )
 }
