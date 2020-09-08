@@ -5,6 +5,9 @@ import axios from 'axios'
 export default function App() {
   const queryInfo = useQuery('pokemon', async () => {
     await new Promise((resolve) => setTimeout(resolve, 1000))
+    // if (true) {
+    //   throw new Error('Test error!')
+    // }
     return axios
       .get('https://pokeapi.co/api/v2/pokemon')
       .then((res) => res.data.results)
@@ -12,6 +15,8 @@ export default function App() {
 
   return queryInfo.isLoading ? (
     'Loading...'
+  ) : queryInfo.isError ? (
+    queryInfo.error.message
   ) : (
     <div>
       {queryInfo.data?.map((result) => {
