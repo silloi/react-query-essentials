@@ -14,7 +14,7 @@ function Pokemon() {
         .then((res) => res.data.results)
     },
     {
-      staleTime: Infinity,
+      cacheTime: 5000,
     }
   )
 
