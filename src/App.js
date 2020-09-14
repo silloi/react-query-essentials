@@ -7,20 +7,30 @@ import axios from 'axios'
 export default function App() {
   return (
     <div>
-      <Pokemon queryKey="pokemon1" />
-      <Pokemon queryKey="pokemon1" />
+      <Count />
+      <Pokemon />
       <ReactQueryDevtools />
     </div>
   )
 }
 
-function Pokemon({ queryKey }) {
-  const queryInfo = useQuery(queryKey, async () => {
+function usePokemon() {
+  return useQuery('pokemons', async () => {
     await new Promise((resolve) => setTimeout(resolve, 1000))
     return axios
       .get('https://pokeapi.co/api/v2/pokemon')
       .then((res) => res.data.results)
   })
+}
+
+function Count() {
+  const queryInfo = usePokemon()
+
+  return <h3>You are looking at {queryInfo.data?.length} pokemon</h3>
+}
+
+function Pokemon() {
+  const queryInfo = usePokemon()
 
   return queryInfo.isLoading ? (
     'Loading...'
