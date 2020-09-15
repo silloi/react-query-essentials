@@ -5,21 +5,22 @@ import { ReactQueryDevtools } from 'react-query-devtools'
 import axios from 'axios'
 
 export default function App() {
+  const [pokemon, setPokemon] = React.useState('')
   return (
     <div>
-      <Pokemon />
-      <Berries />
+      <input value={pokemon} onChange={(e) => setPokemon(e.target.value)} />
+      <PokemonSearch pokemon={pokemon} />
       <ReactQueryDevtools />
     </div>
   )
 }
 
-function Berries() {
-  const queryInfo = useQuery('berries', async () => {
+function PokemonSearch({ pokemon }) {
+  const queryInfo = useQuery(pokemon, async () => {
     await new Promise((resolve) => setTimeout(resolve, 1000))
     return axios
-      .get('https://pokeapi.co/api/v2/berry')
-      .then((res) => res.data.results)
+      .get(`https://pokeapi.co/api/v2/pokemon/${pokemon}`)
+      .then((res) => res.data)
   })
 
   return queryInfo.isLoading ? (
@@ -28,32 +29,11 @@ function Berries() {
     queryInfo.error.message
   ) : (
     <div>
-      {queryInfo.data?.map((result) => {
-        return <div key={result.name}>{result.name}</div>
-      })}
-      <br />
-      {queryInfo.isFetching ? 'Updating...' : null}
-    </div>
-  )
-}
-
-function Pokemon() {
-  const queryInfo = useQuery('pokemon', async () => {
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    return axios
-      .get('https://pokeapi.co/api/v2/pokemon')
-      .then((res) => res.data.results)
-  })
-
-  return queryInfo.isLoading ? (
-    'Loading...'
-  ) : queryInfo.isError ? (
-    queryInfo.error.message
-  ) : (
-    <div>
-      {queryInfo.data?.map((result) => {
-        return <div key={result.name}>{result.name}</div>
-      })}
+      {queryInfo.data?.sprites?.front_default ? (
+        <img src={queryInfo.data.sprites.front_default} alt="pokemon" />
+      ) : (
+        'Pokemon not found.'
+      )}
       <br />
       {queryInfo.isFetching ? 'Updating...' : null}
     </div>
