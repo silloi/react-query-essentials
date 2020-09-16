@@ -25,6 +25,8 @@ function PokemonSearch({ pokemon }) {
         .then((res) => res.data)
     },
     {
+      retry: 2,
+      retryDelay: false,
       enabled: pokemon,
     }
   )
