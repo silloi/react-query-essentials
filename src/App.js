@@ -1,58 +1,55 @@
 import React from 'react'
 import { useQuery } from 'react-query'
 import { ReactQueryDevtools } from 'react-query-devtools'
+import axios from 'axios'
 
-function PokemonSearch({ pokemon }) {
-  const queryInfo = useQuery(
-    ['pokemon', pokemon],
-    () => {
-      const controller = new AbortController()
+// user email: 'Sincere@april.biz'
+// https://jsonplaceholder.typicode.com/users?email=${email}
 
-      const signal = controller.signal
+// https://jsonplaceholder.typicode.com/users?userId=${userId}
 
-      const promise = new Promise((resolve) => setTimeout(resolve, 1000))
-        .then(() => {
-          return fetch(`https://pokeapi.co/api/v2/pokemon/${pokemon}`, {
-            method: 'get',
-            signal,
-          })
-        })
-        .then((res) => res.json())
+const email = 'Sincere@april.biz'
 
-      promise.cancel = () => {
-        controller.abort()
-      }
+function MyPosts() {
+  const userQuery = useQuery('user', () =>
+    axios
+      .get(`https://jsonplaceholder.typicode.com/users?email=${email}`)
+      .then((res) => res.data[0])
+  )
 
-      return promise
-    },
+  const postsQuery = useQuery(
+    'posts',
+    () =>
+      axios
+        .get(
+          `https://jsonplaceholder.typicode.com/users?userId=${userQuery.data.userId}`
+        )
+        .then((res) => res.data),
     {
-      enabled: pokemon,
+      enabled: userQuery.data?.id,
     }
   )
 
-  return queryInfo.isLoading ? (
-    'Loading...'
-  ) : queryInfo.isError ? (
-    queryInfo.error.message
+  return userQuery.isLoading ? (
+    'Loading user...'
   ) : (
     <div>
-      {queryInfo.data?.sprites?.front_default ? (
-        <img src={queryInfo.data.sprites.front_default} alt="pokemon" />
-      ) : (
-        'Pokemon not found.'
-      )}
+      <div>User Id: {userQuery.data.id}</div>
       <br />
-      {queryInfo.isFetching ? 'Updating...' : null}
+      <br />
+      {postsQuery.isIdle ? null : postsQuery.isLoading ? (
+        'Loading posts...'
+      ) : (
+        <div>Post Count: {postsQuery.data.length}</div>
+      )}
     </div>
   )
 }
 
 export default function App() {
-  const [pokemon, setPokemon] = React.useState('')
   return (
     <div>
-      <input value={pokemon} onChange={(e) => setPokemon(e.target.value)} />
-      <PokemonSearch pokemon={pokemon} />
+      <MyPosts />
       <ReactQueryDevtools />
     </div>
   )
