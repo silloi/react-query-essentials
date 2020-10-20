@@ -3,12 +3,10 @@ import { useQuery } from 'react-query'
 import { ReactQueryDevtools } from 'react-query-devtools'
 import axios from 'axios'
 
-import existingUser from './existingUser'
-
 function Posts({ setPostId }) {
   const postsQuery = useQuery('posts', async () => {
     await new Promise((resolve) => setTimeout(resolve, 1000))
-    axios
+    return axios
       .get('https://jsonplaceholder.typicode.com/posts')
       .then((res) => res.data)
   })
@@ -38,8 +36,6 @@ function Posts({ setPostId }) {
 }
 
 function Post({ postId, setPostId }) {
-  // https://jsonplaceholder.typicode.com/posts/${id}
-
   const postQuery = useQuery(['post', postId], async () => {
     await new Promise((resolve) => setTimeout(resolve, 1000))
     return axios
@@ -66,6 +62,7 @@ function Post({ postId, setPostId }) {
       )}
     </div>
   )
+  //
 }
 
 export default function App() {
