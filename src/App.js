@@ -1,5 +1,5 @@
 import React from 'react'
-import { useQuery } from 'react-query'
+import { useQuery, queryCache } from 'react-query'
 import { ReactQueryDevtools } from 'react-query-devtools'
 import axios from 'axios'
 
@@ -36,12 +36,20 @@ function Posts({ setPostId }) {
 }
 
 function Post({ postId, setPostId }) {
-  const postQuery = useQuery(['post', postId], async () => {
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    return axios
-      .get(`https://jsonplaceholder.typicode.com/posts/${postId}`)
-      .then((res) => res.data)
-  })
+  const postQuery = useQuery(
+    ['post', postId],
+    async () => {
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      return axios
+        .get(`https://jsonplaceholder.typicode.com/posts/${postId}`)
+        .then((res) => res.data)
+    },
+    {
+      initialData: () =>
+        queryCache.getQueryData('posts')?.find((post) => post.id === postId),
+      initialStale: true,
+    }
+  )
 
   return (
     <div>
