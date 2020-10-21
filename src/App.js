@@ -6,9 +6,15 @@ import axios from 'axios'
 function Posts({ setPostId }) {
   const postsQuery = useQuery('posts', async () => {
     await new Promise((resolve) => setTimeout(resolve, 1000))
-    return axios
+    const posts = await axios
       .get('https://jsonplaceholder.typicode.com/posts')
       .then((res) => res.data)
+
+    posts.forEach((post) => {
+      queryCache.setQueryData(['post', post.id], post)
+    })
+
+    return posts
   })
 
   return (
@@ -36,20 +42,12 @@ function Posts({ setPostId }) {
 }
 
 function Post({ postId, setPostId }) {
-  const postQuery = useQuery(
-    ['post', postId],
-    async () => {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      return axios
-        .get(`https://jsonplaceholder.typicode.com/posts/${postId}`)
-        .then((res) => res.data)
-    },
-    {
-      initialData: () =>
-        queryCache.getQueryData('posts')?.find((post) => post.id === postId),
-      initialStale: true,
-    }
-  )
+  const postQuery = useQuery(['post', postId], async () => {
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    return axios
+      .get(`https://jsonplaceholder.typicode.com/posts/${postId}`)
+      .then((res) => res.data)
+  })
 
   return (
     <div>
