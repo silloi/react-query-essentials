@@ -6,24 +6,28 @@ export default function App() {
   const [show, toggle] = React.useReducer((d) => !d, true)
   return (
     <div>
-      <button onClick={toggle}>Toggle Random</button>
-      <button
-        onClick={() =>
-          queryCache.invalidateQueries('random', {
-            refetchInactive: true,
-          })
-        }
-      >
+      <button onClick={() => queryCache.invalidateQueries('random')}>
         Invalidate Random Number
       </button>
-      {show ? <RandomNumber /> : null}
+      <button onClick={() => queryCache.invalidateQueries(['random', 'A'])}>
+        Invalidate A
+      </button>
+      <button onClick={() => queryCache.invalidateQueries(['random', 'B'])}>
+        Invalidate B
+      </button>
+      <button onClick={() => queryCache.invalidateQueries(['random', 'C'])}>
+        Invalidate C
+      </button>
+      <RandomNumber subKey="A" />
+      <RandomNumber subKey="B" />
+      <RandomNumber subKey="C" />
     </div>
   )
 }
 
-function RandomNumber() {
+function RandomNumber({ subKey }) {
   const randomQuery = useQuery(
-    'random',
+    ['random', subKey],
     async () => {
       return axios.get('/api/random').then((res) => res.data)
     },
