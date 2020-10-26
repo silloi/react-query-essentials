@@ -4,46 +4,49 @@ import axios from 'axios'
 
 export default function App() {
   const [show, toggle] = React.useReducer((d) => !d, true)
+
+  React.useEffect(() => {
+    queryCache.prefetchQuery('posts', fetchPosts)
+  }, [])
+
   return (
     <div>
-      <button onClick={() => queryCache.invalidateQueries('random')}>
-        Invalidate Random Number
-      </button>
-      <button onClick={() => queryCache.invalidateQueries(['random', 'A'])}>
-        Invalidate A
-      </button>
-      <button onClick={() => queryCache.invalidateQueries(['random', 'B'])}>
-        Invalidate B
-      </button>
-      <button onClick={() => queryCache.invalidateQueries(['random', 'C'])}>
-        Invalidate C
-      </button>
-      <RandomNumber subKey="A" />
-      <RandomNumber subKey="B" />
-      <RandomNumber subKey="C" />
+      <button onClick={toggle}>Show Posts</button>
+      {show ? <Posts /> : null}
     </div>
   )
 }
 
-function RandomNumber({ subKey }) {
-  const randomQuery = useQuery(
-    ['random', subKey],
-    async () => {
-      return axios.get('/api/random').then((res) => res.data)
-    },
-    {
-      staleTime: Infinity,
-    }
-  )
+async function fetchPosts() {
+  await new Promise((resolve) => setTimeout(resolve, 1000))
+  return axios
+    .get('https://jsonplaceholder.typicode.com/posts')
+    .then((res) => res.data.slice(0, 10))
+}
+
+function Posts({ setPostId }) {
+  const postsQuery = useQuery('posts', fetchPosts)
 
   return (
     <div>
-      <h1>Random Number {randomQuery.isFetching ? '...' : null}</h1>
-      <h2>
-        {randomQuery.isLoading
-          ? 'Loading random number...'
-          : Math.round(randomQuery.data.random * 1000)}
-      </h2>
+      <h1>Posts {postsQuery.isFetching ? '...' : null}</h1>
+      <div>
+        {postsQuery.isLoading ? (
+          'Loading posts...'
+        ) : (
+          <ul>
+            {postsQuery.data.map((post) => {
+              return (
+                <li key={post.id}>
+                  <a onClick={() => setPostId(post.id)} href="#">
+                    {post.title}
+                  </a>
+                </li>
+              )
+            })}
+          </ul>
+        )}
+      </div>
     </div>
   )
 }
