@@ -1,27 +1,30 @@
 {
-  "name": "01-installation",
-  "version": "0.1.0",
+  "name": "react-query-essentials",
   "private": true,
-  "dependencies": {
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.3.2",
-    "@testing-library/user-event": "^7.1.2",
-    "axios": "^0.19.2",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-query": "^2.15.4",
-    "react-query-devtools": "^2.4.7",
-    "react-router-dom": "^5.2.0",
-    "react-scripts": "3.4.1"
-  },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "dev": "next",
+    "start": "next start",
+    "build": "next build"
   },
-  "eslintConfig": {
-    "extends": "react-app"
+  "dependencies": {
+    "axios": "0.19.2",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-query": "2.4.7",
+    "react-query-devtools": "^2.1.1",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "3.0.1",
+    "styled-components": "^4.3.2"
+  },
+  "devDependencies": {
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.3.3",
+    "@rescripts/cli": "^0.0.11",
+    "@rescripts/rescript-use-babel-config": "^0.0.8",
+    "@rescripts/rescript-use-eslint-config": "^0.0.9",
+    "babel-eslint": "10.0.1",
+    "eslint-config-prettier": "^6.11.0",
+    "next": "^9.4.4",
+    "react-refresh": "^0.8.3"
   },
   "browserslist": {
     "production": [

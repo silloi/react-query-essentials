@@ -1,26 +1,24 @@
 import React from 'react'
-import { useQuery } from 'react-query'
+import { useQuery, queryCache } from 'react-query'
 import axios from 'axios'
 
 export default function Posts() {
-  const timeQuery = useQuery(
-    'posts',
-    async () => {
-      return axios.get('/api/time').then(res => res.data)
-    },
-    {
-      refetchInterval: 1000,
-      refetchIntervalInBackground: true,
-    }
-  )
+  const randomQuery = useQuery('random', async () => {
+    return axios.get('/api/random').then((res) => res.data)
+  })
 
   return (
     <div>
-      <h1>Server Time {timeQuery.isFetching ? '...' : null}</h1>
+      <h1>Random Number {randomQuery.isFetching ? '...' : null}</h1>
+      <h2>
+        {randomQuery.isLoading
+          ? 'Loading random number...'
+          : Math.round(randomQuery.data.random * 1000)}
+      </h2>
       <div>
-        {timeQuery.isLoading
-          ? 'Loading time...'
-          : new Date(timeQuery.data.time).toLocaleString()}
+        <button onClick={() => queryCache.invalidateQueries('random')}>
+          Invalidate Random Number
+        </button>
       </div>
     </div>
   )
