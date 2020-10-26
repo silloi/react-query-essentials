@@ -3,9 +3,13 @@ import { useQuery, queryCache } from 'react-query'
 import axios from 'axios'
 
 export default function Posts() {
-  const randomQuery = useQuery('random', async () => {
-    return axios.get('/api/random').then((res) => res.data)
-  })
+  const randomQuery = useQuery(
+    'random',
+    async () => {
+      return axios.get('/api/random').then((res) => res.data)
+    },
+    { staleTime: Infinity }
+  )
 
   return (
     <div>
@@ -16,7 +20,11 @@ export default function Posts() {
           : Math.round(randomQuery.data.random * 1000)}
       </h2>
       <div>
-        <button onClick={() => queryCache.invalidateQueries('random')}>
+        <button
+          onClick={() =>
+            queryCache.invalidateQueries('random', { refetchActive: false })
+          }
+        >
           Invalidate Random Number
         </button>
       </div>
