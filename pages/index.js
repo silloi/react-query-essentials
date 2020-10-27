@@ -13,9 +13,10 @@ export default function Posts() {
   const [createPost, createPostInfo] = useMutation(
     (values) => axios.post('/api/posts', values),
     {
-      onSuccess: () => {
-        queryCache.invalidateQueries('posts')
+      onError: (error) => {
+        window.alert(error.response.data.message)
       },
+      onSettled: () => queryCache.invalidateQueries('posts'),
     }
   )
 
@@ -57,6 +58,9 @@ export default function Posts() {
                 : 'Create Post'
             }
           />
+          {createPostInfo.isError ? (
+            <pre>{createPostInfo.error.response.data.message}</pre>
+          ) : null}
         </div>
       </div>
     </section>
