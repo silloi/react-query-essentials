@@ -11,7 +11,7 @@ const originalRequire = Module.prototype.require
 Module.prototype.require = function (modulePath) {
   // Only redirect resolutions to non-relative and non-absolute modules
   if (
-    ['/react/', '/react-dom/', '/react-query/'].some(d => {
+    ['/react/', '/react-dom/', '/react-query/'].some((d) => {
       try {
         return require.resolve(modulePath).includes(d)
       } catch (err) {
@@ -30,7 +30,7 @@ Module.prototype.require = function (modulePath) {
 }
 
 module.exports = {
-  webpack: config => {
+  webpack: (config) => {
     config.resolve = {
       ...config.resolve,
       alias: {
@@ -40,10 +40,7 @@ module.exports = {
           path.resolve('node_modules'),
           'react-query'
         ),
-        'react-dom$': resolveFrom(
-          path.resolve('node_modules'),
-          'react-dom'
-        ),
+        'react-dom$': resolveFrom(path.resolve('node_modules'), 'react-dom'),
       },
     }
     return config
