@@ -10,13 +10,14 @@ export default function Posts() {
     axios.get('/api/posts').then((res) => res.data)
   )
 
-  const createPost = async (values) => {
-    const response = await axios
-      .post('/api/posts', values)
-      .then((res) => res.data)
-
-    console.log(response)
-  }
+  const [createPost, createPostInfo] = useMutation((values) => {
+    axios.post('/api/posts', values).then((res) => res.data),
+      {
+        onSuccess: () => {
+          queryCache.invalidateQueries('posts')
+        },
+      }
+  })
 
   return (
     <section>
@@ -46,7 +47,15 @@ export default function Posts() {
           <PostForm
             onSubmit={createPost}
             clearOnSubmit
-            submitText={'create post'}
+            submitText={
+              createPostInfo.isLoading
+                ? 'Saving...'
+                : createPostInfo.isError
+                ? 'Error!'
+                : createPostInfo.isSuccess
+                ? 'Saved!'
+                : 'Create Post'
+            }
           />
         </div>
       </div>
