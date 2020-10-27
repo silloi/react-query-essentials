@@ -10,14 +10,14 @@ export default function Posts() {
     axios.get('/api/posts').then((res) => res.data)
   )
 
-  const [createPost, createPostInfo] = useMutation((values) => {
-    axios.post('/api/posts', values).then((res) => res.data),
-      {
-        onSuccess: () => {
-          queryCache.invalidateQueries('posts')
-        },
-      }
-  })
+  const [createPost, createPostInfo] = useMutation(
+    (values) => axios.post('/api/posts', values),
+    {
+      onSuccess: () => {
+        queryCache.invalidateQueries('posts')
+      },
+    }
+  )
 
   return (
     <section>
