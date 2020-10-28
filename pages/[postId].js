@@ -1,33 +1,33 @@
 import React from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { useQuery, useMutation, queryCache } from 'react-query'
+import axios from 'axios'
 
 //
 
 import PostForm from '../components/PostForm'
 
-import usePost from '../hooks/usePost'
-import useSavePost from '../hooks/useSavePost'
-import useDeletePost from '../hooks/useDeletePost'
+export default function Post() {
+  const {
+    query: { postId },
+  } = useRouter()
 
-export const getServerSideProps = ({ params }) => {
-  return {
-    props: {
-      postId: params.postId,
-    },
-  }
-}
+  const postQuery = useQuery(['post', postId], () =>
+    axios.get(`/api/posts/${postId}`).then((res) => res.data)
+  )
 
-export default function Post({ postId }) {
-  const router = useRouter()
-  const postQuery = usePost(postId)
-  const [savePost, savePostInfo] = useSavePost()
-  const [deletePost] = useDeletePost()
-
-  const onDelete = async () => {
-    deletePost(postId)
-    router.push('/')
-  }
+  const [savePost, savePostInfo] = useMutation(
+    (values) =>
+      axios.patch(`/api/posts/${values.id}`, values).then((res) => res.data),
+    {
+      onSuccess: (data, values) => {
+        console.log(data)
+        queryCache.setQueryData(['post', String(values.id)], data)
+        queryCache.invalidateQueries(['post', String(values.id)])
+      },
+    }
+  )
 
   return (
     <>
@@ -37,7 +37,9 @@ export default function Post({ postId }) {
         <div>
           <h3>
             <Link href="/[postId]" as={`/${postQuery.data.id}`}>
-              <a>{postQuery.data.title}</a>
+              <a>
+                {postQuery.data.title} {postQuery.isFetching ? '...' : null}
+              </a>
             </Link>
           </h3>
           <p>
@@ -56,10 +58,6 @@ export default function Post({ postId }) {
                 : 'Save Post'
             }
           />
-
-          <p>
-            <button onClick={onDelete}>Delete Post</button>
-          </p>
         </div>
       )}
     </>
