@@ -1,4 +1,5 @@
 import React from 'react'
+import Link from 'next/link'
 import { useQuery, useMutation, queryCache } from 'react-query'
 
 import axios from 'axios'
@@ -13,6 +14,17 @@ export default function Posts() {
   const [createPost, createPostInfo] = useMutation(
     (values) => axios.post('/api/posts', values),
     {
+      onMutate: (values) => {
+        queryCache.setQueryData('posts', (oldPosts) => {
+          return [
+            ...oldPosts,
+            {
+              ...values,
+              id: Date.now(),
+            },
+          ]
+        })
+      },
       onError: (error) => {
         window.alert(error.response.data.message)
       },
