@@ -15,6 +15,10 @@ export default function Posts() {
     (values) => axios.post('/api/posts', values),
     {
       onMutate: (values) => {
+        queryCache.calcelQueries('posts')
+
+        const oldPosts = queryCache.getQueryData('posts')
+
         queryCache.setQueryData('posts', (oldPosts) => {
           return [
             ...oldPosts,
@@ -24,9 +28,13 @@ export default function Posts() {
             },
           ]
         })
+
+        return () => queryCache.setQueryData('posts', oldPosts)
       },
-      onError: (error) => {
-        window.alert(error.response.data.message)
+      onError: (error, values, rollback) => {
+        if (rollback) {
+          rollback()
+        }
       },
       onSettled: () => queryCache.invalidateQueries('posts'),
     }
