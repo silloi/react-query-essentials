@@ -22,11 +22,26 @@ export default function Post() {
       axios.patch(`/api/posts/${values.id}`, values).then((res) => res.data),
     {
       onMutate: (values) => {
+        queryCache.cancelQueries(['post', String(values.id)])
+
+        const oldPost = queryCache.getQueryData(['post', String(values.id)])
+
         queryCache.setQueryData(['post', String(values.id)], values)
+
+        return () =>
+          queryCache.setQueryData(['post', String(values.id)], oldPost)
+      },
+      onError: (error, values, rollback) => {
+        if (rollback) {
+          rollback()
+        }
       },
       onSuccess: (data, values) => {
         console.log(data)
         queryCache.setQueryData(['post', String(values.id)], data)
+        queryCache.invalidateQueries(['post', String(values.id)])
+      },
+      onSettled: (data, error, values) => {
         queryCache.invalidateQueries(['post', String(values.id)])
       },
     }
