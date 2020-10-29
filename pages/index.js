@@ -15,7 +15,7 @@ export default function Posts() {
     (values) => axios.post('/api/posts', values),
     {
       onMutate: (values) => {
-        queryCache.calcelQueries('posts')
+        queryCache.cancelQueries('posts')
 
         const oldPosts = queryCache.getQueryData('posts')
 
