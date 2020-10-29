@@ -21,6 +21,9 @@ export default function Post() {
     (values) =>
       axios.patch(`/api/posts/${values.id}`, values).then((res) => res.data),
     {
+      onMutate: (values) => {
+        queryCache.setQueryData(['post', String(values.id)], values)
+      },
       onSuccess: (data, values) => {
         console.log(data)
         queryCache.setQueryData(['post', String(values.id)], data)
