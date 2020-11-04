@@ -53,6 +53,7 @@ async function POST(req, res) {
   if (row.title === 'Bad Word') {
     res.status(400)
     res.json({ message: 'You cannot use bad words in titles!' })
+    return
   }
 
   await db.set((old) => {

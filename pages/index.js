@@ -1,88 +1,48 @@
 import React from 'react'
-import Link from 'next/link'
-import { useQuery, useMutation, queryCache } from 'react-query'
-
 import axios from 'axios'
-
-import PostForm from '../components/PostForm'
+import { usePaginatedQuery } from 'react-query'
 
 export default function Posts() {
-  const postsQuery = useQuery('posts', () =>
-    axios.get('/api/posts').then((res) => res.data)
-  )
+  const [page, setPage] = React.useState(0)
 
-  const [createPost, createPostInfo] = useMutation(
-    (values) => axios.post('/api/posts', values),
-    {
-      onMutate: (values) => {
-        queryCache.cancelQueries('posts')
-
-        const oldPosts = queryCache.getQueryData('posts')
-
-        queryCache.setQueryData('posts', (oldPosts) => {
-          return [
-            ...oldPosts,
-            {
-              ...values,
-              id: Date.now(),
-            },
-          ]
-        })
-
-        return () => queryCache.setQueryData('posts', oldPosts)
-      },
-      onError: (error, values, rollback) => {
-        if (rollback) {
-          rollback()
-        }
-      },
-      onSettled: () => queryCache.invalidateQueries('posts'),
-    }
+  const postsQuery = usePaginatedQuery(['posts', { page }], () =>
+    axios
+      .get('/api/posts', {
+        params: {
+          pageSize: 10,
+          pageOffset: page,
+        },
+      })
+      .then((res) => res.data)
   )
 
   return (
-    <section>
-      <div>
-        <div>
-          {postsQuery.isLoading ? (
-            <span>Loading...</span>
-          ) : (
-            <>
-              <h3>Posts {postsQuery.isFetching ? <small>...</small> : null}</h3>
-              <ul>
-                {postsQuery.data.map((post) => (
-                  <li key={post.id}>{post.title}</li>
-                ))}
-              </ul>
-              <br />
-            </>
-          )}
-        </div>
-      </div>
-
-      <hr />
-
-      <div>
-        <h3>Create New Post</h3>
-        <div>
-          <PostForm
-            onSubmit={createPost}
-            clearOnSubmit
-            submitText={
-              createPostInfo.isLoading
-                ? 'Saving...'
-                : createPostInfo.isError
-                ? 'Error!'
-                : createPostInfo.isSuccess
-                ? 'Saved!'
-                : 'Create Post'
-            }
-          />
-          {createPostInfo.isError ? (
-            <pre>{createPostInfo.error.response.data.message}</pre>
-          ) : null}
-        </div>
-      </div>
-    </section>
+    <div>
+      {postsQuery.isLoading ? (
+        <span>Loading...</span>
+      ) : (
+        <>
+          <h3>Posts {postsQuery.isFetching ? <small>...</small> : null}</h3>
+          <ul>
+            {postsQuery.resolvedData.items.map((post) => (
+              <li key={post.id}>{post.title}</li>
+            ))}
+          </ul>
+          <br />
+        </>
+      )}
+      <button onClick={() => setPage((old) => old - 1)} disabled={page === 0}>
+        Previous
+      </button>{' '}
+      <button
+        onClick={() => setPage((old) => old + 1)}
+        disabled={!postsQuery.latestData?.nextPageOffset}
+      >
+        Next
+      </button>
+      <span>
+        Current Page: {page + 1} {postsQuery.isFetching ? '...' : ''}
+      </span>
+    </div>
   )
 }

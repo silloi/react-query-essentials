@@ -37,9 +37,7 @@ export default function Post() {
         }
       },
       onSuccess: (data, values) => {
-        console.log(data)
         queryCache.setQueryData(['post', String(values.id)], data)
-        queryCache.invalidateQueries(['post', String(values.id)])
       },
       onSettled: (data, error, values) => {
         queryCache.invalidateQueries(['post', String(values.id)])
