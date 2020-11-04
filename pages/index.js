@@ -1,20 +1,28 @@
 import React from 'react'
 import axios from 'axios'
-import { usePaginatedQuery } from 'react-query'
+import { usePaginatedQuery, queryCache } from 'react-query'
+
+const fetchPosts = (_, { page }) =>
+  axios
+    .get('/api/posts', {
+      params: {
+        pageSize: 10,
+        pageOffset: page,
+      },
+    })
+    .then((res) => res.data)
 
 export default function Posts() {
   const [page, setPage] = React.useState(0)
 
-  const postsQuery = usePaginatedQuery(['posts', { page }], () =>
-    axios
-      .get('/api/posts', {
-        params: {
-          pageSize: 10,
-          pageOffset: page,
-        },
-      })
-      .then((res) => res.data)
-  )
+  const postsQuery = usePaginatedQuery(['posts', { page }], () => fetchPosts)
+
+  React.useEffect(() => {
+    queryCache.prefetchQuery(
+      ['posts', { page: postsQuery.latestData?.nextPageOffset }],
+      fetchPosts
+    )
+  }, [postsQuery.latestData?.nextPageOffset])
 
   return (
     <div>
