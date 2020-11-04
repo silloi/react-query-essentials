@@ -1,28 +1,21 @@
 import React from 'react'
 import axios from 'axios'
-import { usePaginatedQuery, queryCache } from 'react-query'
+import { useInfiniteQuery } from 'react-query'
 
-const fetchPosts = (_, { page }) =>
+const fetchPosts = (_, page = 0) =>
   axios
     .get('/api/posts', {
       params: {
-        pageSize: 10,
         pageOffset: page,
+        pageSize: 10,
       },
     })
     .then((res) => res.data)
 
 export default function Posts() {
-  const [page, setPage] = React.useState(0)
-
-  const postsQuery = usePaginatedQuery(['posts', { page }], fetchPosts)
-
-  React.useEffect(() => {
-    queryCache.prefetchQuery(
-      ['posts', { page: postsQuery.latestData?.nextPageOffset }],
-      fetchPosts
-    )
-  }, [postsQuery.latestData?.nextPageOffset])
+  const postsQuery = useInfiniteQuery('posts', fetchPosts, {
+    getFetchMore: (lastPage) => lastPage.nextPageOffset,
+  })
 
   return (
     <div>
@@ -32,25 +25,31 @@ export default function Posts() {
         <>
           <h3>Posts {postsQuery.isFetching ? <small>...</small> : null}</h3>
           <ul>
-            {postsQuery.resolvedData.items.map((post) => (
-              <li key={post.id}>{post.title}</li>
-            ))}
+            {postsQuery.data.map((page, index) => {
+              return (
+                <React.Fragment key={index}>
+                  {page.items.map((post) => (
+                    <li key={post.id}>{post.title}</li>
+                  ))}
+                </React.Fragment>
+              )
+            })}
           </ul>
           <br />
         </>
       )}
-      <button onClick={() => setPage((old) => old - 1)} disabled={page === 0}>
-        Previous
-      </button>{' '}
       <button
-        onClick={() => setPage((old) => old + 1)}
-        disabled={!postsQuery.latestData?.nextPageOffset}
+        onClick={() => postsQuery.fetchMore()}
+        disabled={!postsQuery.canFetchMore}
       >
-        Next
-      </button>{' '}
-      <span>
-        Current Page: {page + 1} {postsQuery.isFetching ? '...' : ''}
-      </span>
+        Fetch More
+      </button>
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
     </div>
   )
 }
