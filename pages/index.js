@@ -15,7 +15,7 @@ const fetchPosts = (_, { page }) =>
 export default function Posts() {
   const [page, setPage] = React.useState(0)
 
-  const postsQuery = usePaginatedQuery(['posts', { page }], () => fetchPosts)
+  const postsQuery = usePaginatedQuery(['posts', { page }], fetchPosts)
 
   React.useEffect(() => {
     queryCache.prefetchQuery(
@@ -47,7 +47,7 @@ export default function Posts() {
         disabled={!postsQuery.latestData?.nextPageOffset}
       >
         Next
-      </button>
+      </button>{' '}
       <span>
         Current Page: {page + 1} {postsQuery.isFetching ? '...' : ''}
       </span>
