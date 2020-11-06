@@ -30,6 +30,7 @@ export default function Post({ post }) {
 
   const postQuery = useQuery(['post', postId], () => fetchPost(postId), {
     initialData: post,
+    initialStale: true,
   })
 
   return (
