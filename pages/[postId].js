@@ -13,12 +13,24 @@ const fetchPost = async (id) => {
     .then((res) => res.data)
 }
 
+export const getServerSideProps = async ({ params: { postId } }) => {
+  const post = await fetchPost(postId)
+
+  return {
+    props: {
+      post,
+    },
+  }
+}
+
 export default function Post({ post }) {
   const {
     query: { postId },
   } = useRouter()
 
-  const postQuery = useQuery(['post', postId], () => fetchPost(postId))
+  const postQuery = useQuery(['post', postId], () => fetchPost(postId), {
+    initialData: post,
+  })
 
   return (
     <>
